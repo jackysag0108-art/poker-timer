@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Poker Tournament Structure</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: #000;
+      color: #fff;
+      font-family: Arial, Helvetica, sans-serif;
+      overflow: hidden;
+    }
+
+    .container {
+      display: grid;
+      grid-template-rows: auto auto auto 1fr;
+      height: 100vh;
+      width: 100vw;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .level {
+      font-size: 3vw;
+      border-bottom: 2px solid #444;
+    }
+
+    .timer {
+      text-align: center;
+      font-size: 15vw;
+      border-bottom: 2px solid #444;
+    }
+
+    .next-break {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      font-size: 3vw;
+    }
+
+    .blinds-area {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      font-size: 6vw;
+      border-bottom: 2px solid #444;
+    }
+
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+    }
+
+    button {
+      font-size: 2.5vw;
+      padding: 10px 20px;
+      margin-left: 10px;
+      background: #222;
+      color: #fff;
+      border: 2px solid #555;
+      border-radius: 8px;
+    }
+
+    button:active {
+      transform: scale(0.92);
+      background: #666;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="level">LEVEL 1</div>
+    <div class="timer">20:00</div>
+    <div class="next-break">NEXT BREAK 0:00:00</div>
+    <div class="blinds-area">
+      <div class="blinds">100 / 200</div>
+      <div class="ante">ANTE 200</div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="toggleFullScreen()">FULL</button>
+    <button onclick="startAndFullscreen()">START</button>
+    <button onclick="pauseTimer()">STOP</button>
+  </div>
+
+<script>
+const structure = [
+  { level: 1, sb: 100, bb: 200, ante: 200, time: 20 },
+  { level: 2, sb: 200, bb: 400, ante: 400, time: 20 }
+];
+
+let currentIndex = 0;
+let remainingSeconds = structure[0].time * 60;
+let timerId = null;
+
+const levelEl = document.querySelector('.level');
+const timerEl = document.querySelector('.timer');
+const blindsEl = document.querySelector('.blinds');
+const anteEl = document.querySelector('.ante');
+const nextBreakEl = document.querySelector('.next-break');
+
+const sound5min = new Audio('5min.mp3');
+const sound1min = new Audio('1min.mp3');
+const soundLevelUp = new Audio('levelup.mp3');
+
+let played5min = false;
+let played1min = false;
+
+function formatTimeMS(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function formatTimeHMS(sec) {
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+}
+
+function updateDisplay() {
+  const current = structure[currentIndex];
+  levelEl.textContent = `LEVEL ${current.level}`;
+  blindsEl.textContent = `${current.sb} / ${current.bb}`;
+  anteEl.textContent = `ANTE ${current.ante}`;
+  timerEl.textContent = formatTimeMS(remainingSeconds);
+  nextBreakEl.textContent = `NEXT BREAK ${formatTimeHMS(remainingSeconds)}`;
+}
+
+function tick() {
+  if (remainingSeconds > 0) {
+    remainingSeconds--;
+    if (remainingSeconds === 300 && !played5min) { sound5min.play(); played5min = true; }
+    if (remainingSeconds === 60 && !played1min) { sound1min.play(); played1min = true; }
+    updateDisplay();
+  } else {
+    soundLevelUp.play();
+    currentIndex++;
+    if (currentIndex >= structure.length) { clearInterval(timerId); return; }
+    remainingSeconds = structure[currentIndex].time * 60;
+    played5min = false;
+    played1min = false;
+    updateDisplay();
+  }
+}
+
+function startTimer() {
+  if (timerId) return;
+  timerId = setInterval(tick, 1000);
+}
+
+function pauseTimer() {
+  clearInterval(timerId);
+  timerId = null;
+}
+
+function toggleFullScreen() {
+  const elem = document.documentElement;
+  if (!document.fullscreenElement) {
+    elem.requestFullscreen();
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+function startAndFullscreen() {
+  toggleFullScreen();
+  startTimer();
+}
+
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js');
+}
+
+updateDisplay();
+</script>
+</body>
+</html>
