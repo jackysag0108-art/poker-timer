@@ -113,11 +113,6 @@ const structure = [
       { level: 17, sb: 10000, bb: 20000, ante: 20000, time: 10 },
       { level: 18, sb: 15000, bb: 30000, ante: 30000, time: 35 }
     ];
-  { level: 1, sb: 100, bb: 200, ante: 200, time: 20 },
-  { level: 2, sb: 200, bb: 400, ante: 400, time: 20 },
-  { break: true, name: 'BREAK', time: 12 },
-  { level: 3, sb: 300, bb: 600, ante: 600, time: 20 }
-];
 
 let currentIndex = 0;
 let remainingSeconds = structure[0].time * 60;
@@ -160,12 +155,15 @@ function formatHMMSS(sec) {
 
 function calcNextBreakSeconds() {
   let sec = remainingSeconds;
+
   for (let i = currentIndex + 1; i < structure.length; i++) {
-    if (structure[i].break) break;
     sec += structure[i].time * 60;
+    if (structure[i].break) break;
   }
+
   return sec;
 }
+
 
 function updateDisplay() {
   const current = structure[currentIndex];
