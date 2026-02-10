@@ -70,6 +70,16 @@
     transform: scale(0.92);
     background: #666;
   }
+
+  /* フラッシュ演出 */
+  .flash {
+    animation: flashAnim 0.2s;
+  }
+
+  @keyframes flashAnim {
+    0% { background-color: #fff; }
+    100% { background-color: #000; }
+  }
 </style>
 </head>
 
@@ -87,6 +97,8 @@
 
 <div class="controls">
   <button onclick="toggleFullScreen()">FULL</button>
+  <button onclick="prevLevel()">◀◀</button>
+  <button onclick="nextLevel()">▶▶</button>
   <button onclick="startTimer()">START</button>
   <button onclick="pauseTimer()">STOP</button>
 </div>
@@ -94,8 +106,8 @@
 <script>
 /* ===== ストラクチャー ===== */
 const structure = [
-  { level: 1, sb: 100, bb: 200, ante: 200, time: 6 },
-  { level: 2, sb: 200, bb: 400, ante: 400, time: 6 },
+  { level: 1, sb: 100, bb: 200, ante: 200, time: 20 },
+  { level: 2, sb: 200, bb: 400, ante: 400, time: 20 },
   { level: 3, sb: 300, bb: 600, ante: 600, time: 20 },
   { level: 4, sb: 400, bb: 800, ante: 800, time: 20 },
   { level: 5, sb: 500, bb: 1000, ante: 1000, time: 15 },
@@ -149,7 +161,15 @@ function formatHMMSS(sec) {
   return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-/* ===== NEXT BREAK 計算 ===== */
+/* ===== フラッシュ ===== */
+function flashScreen() {
+  document.body.classList.add('flash');
+  setTimeout(() => {
+    document.body.classList.remove('flash');
+  }, 200);
+}
+
+/* ===== NEXT BREAK ===== */
 function calcNextBreakSeconds() {
   let sec = remainingSeconds;
   for (let i = currentIndex + 1; i < structure.length; i++) {
@@ -177,7 +197,7 @@ function updateDisplay() {
   nextBreakEl.textContent = `NEXT BREAK ${formatHMMSS(calcNextBreakSeconds())}`;
 }
 
-/* ===== タイマー処理 ===== */
+/* ===== タイマー ===== */
 function tick() {
   if (remainingSeconds === 300 && !played5min) { sound5min.play(); played5min = true; }
   if (remainingSeconds === 60 && !played1min) { sound1min.play(); played1min = true; }
@@ -186,6 +206,7 @@ function tick() {
     remainingSeconds--;
   } else {
     soundLevelUp.play();
+    flashScreen();
     currentIndex++;
     if (currentIndex >= structure.length) {
       clearInterval(timerId);
@@ -207,6 +228,27 @@ function startTimer() {
 function pauseTimer() {
   clearInterval(timerId);
   timerId = null;
+}
+
+function nextLevel() {
+  if (currentIndex >= structure.length - 1) return;
+  currentIndex++;
+  remainingSeconds = structure[currentIndex].time * 60;
+  played5min = false;
+  played1min = false;
+  soundLevelUp.play();
+  flashScreen();
+  updateDisplay();
+}
+
+function prevLevel() {
+  if (currentIndex <= 0) return;
+  currentIndex--;
+  remainingSeconds = structure[currentIndex].time * 60;
+  played5min = false;
+  played1min = false;
+  flashScreen();
+  updateDisplay();
 }
 
 function toggleFullScreen() {
