@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Poker Tournament Structure</title>
+  <title>Poker Tournament Timer</title>
   <link rel="manifest" href="manifest.json">
   <style>
     body {
@@ -40,6 +40,7 @@
       top: 20px;
       right: 20px;
       font-size: 3vw;
+      opacity: 0.85;
     }
 
     .blinds-area {
@@ -74,25 +75,48 @@
 </head>
 <body>
   <div class="container">
-    <div class="level">LEVEL 1</div>
-    <div class="timer">20:00</div>
-    <div class="next-break">NEXT BREAK 0:00:00</div>
+    <div class="level"></div>
+    <div class="timer"></div>
+    <div class="next-break"></div>
     <div class="blinds-area">
-      <div class="blinds">100 / 200</div>
-      <div class="ante">ANTE 200</div>
+      <div class="blinds"></div>
+      <div class="ante"></div>
     </div>
   </div>
 
   <div class="controls">
     <button onclick="toggleFullScreen()">FULL</button>
-    <button onclick="startAndFullscreen()">START</button>
+    <button onclick="startTimer()">START</button>
     <button onclick="pauseTimer()">STOP</button>
   </div>
 
 <script>
 const structure = [
+      { level: 1, sb: 100, bb: 200, ante: 200, time: 20 },
+      { level: 2, sb: 200, bb: 400, ante: 400, time: 20 },
+      { level: 3, sb: 300, bb: 600, ante: 600, time: 20 },
+      { level: 4, sb: 400, bb: 800, ante: 800, time: 20 },
+      { level: 5, sb: 500, bb: 1000, ante: 1000, time: 15 },
+      { level: 6, sb: 600, bb: 1200, ante: 1200, time: 15 },
+      { break: true, name: 'BREAK & CHIP UP (ADDON)', time: 12 },
+      { level: 7, sb: 1000, bb: 1500, ante: 1500, time: 15 },
+      { level: 8, sb: 1000, bb: 2000, ante: 2000, time: 15 },
+      { level: 9, sb: 1500, bb: 3000, ante: 3000, time: 15 },
+      { level: 10, sb: 2000, bb: 4000, ante: 4000, time: 12 },
+      { level: 11, sb: 2500, bb: 5000, ante: 5000, time: 12 },
+      { break: true, name: 'BREAK & CHIP UP', time: 12 },
+      { level: 12, sb: 3000, bb: 6000, ante: 6000, time: 12 },
+      { level: 13, sb: 4000, bb: 8000, ante: 8000, time: 10 },
+      { level: 14, sb: 5000, bb: 10000, ante: 10000, time: 10 },
+      { level: 15, sb: 6000, bb: 12000, ante: 12000, time: 10 },
+      { level: 16, sb: 8000, bb: 16000, ante: 16000, time: 10 },
+      { level: 17, sb: 10000, bb: 20000, ante: 20000, time: 10 },
+      { level: 18, sb: 15000, bb: 30000, ante: 30000, time: 35 }
+    ];
   { level: 1, sb: 100, bb: 200, ante: 200, time: 20 },
-  { level: 2, sb: 200, bb: 400, ante: 400, time: 20 }
+  { level: 2, sb: 200, bb: 400, ante: 400, time: 20 },
+  { break: true, name: 'BREAK', time: 12 },
+  { level: 3, sb: 300, bb: 600, ante: 600, time: 20 }
 ];
 
 let currentIndex = 0;
@@ -112,38 +136,68 @@ const soundLevelUp = new Audio('levelup.mp3');
 let played5min = false;
 let played1min = false;
 
-function formatTimeMS(sec) {
+function unlockAudio() {
+  sound5min.volume = 0;
+  sound5min.play().then(() => {
+    sound5min.pause();
+    sound5min.currentTime = 0;
+    sound5min.volume = 1;
+  });
+}
+
+function formatMMSS(sec) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
   return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-function formatTimeHMS(sec) {
+function formatHMMSS(sec) {
   const h = Math.floor(sec / 3600);
   const m = Math.floor((sec % 3600) / 60);
   const s = sec % 60;
   return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
+function calcNextBreakSeconds() {
+  let sec = remainingSeconds;
+  for (let i = currentIndex + 1; i < structure.length; i++) {
+    if (structure[i].break) break;
+    sec += structure[i].time * 60;
+  }
+  return sec;
+}
+
 function updateDisplay() {
   const current = structure[currentIndex];
-  levelEl.textContent = `LEVEL ${current.level}`;
-  blindsEl.textContent = `${current.sb} / ${current.bb}`;
-  anteEl.textContent = `ANTE ${current.ante}`;
-  timerEl.textContent = formatTimeMS(remainingSeconds);
-  nextBreakEl.textContent = `NEXT BREAK ${formatTimeHMS(remainingSeconds)}`;
+
+  if (current.break) {
+    levelEl.textContent = current.name;
+    blindsEl.textContent = '';
+    anteEl.textContent = '';
+  } else {
+    levelEl.textContent = `LEVEL ${current.level}`;
+    blindsEl.textContent = `${current.sb} / ${current.bb}`;
+    anteEl.textContent = `ANTE ${current.ante}`;
+  }
+
+  timerEl.textContent = formatMMSS(remainingSeconds);
+  nextBreakEl.textContent = `NEXT BREAK ${formatHMMSS(calcNextBreakSeconds())}`;
 }
 
 function tick() {
+  if (remainingSeconds === 300 && !played5min) { sound5min.play(); played5min = true; }
+  if (remainingSeconds === 60 && !played1min) { sound1min.play(); played1min = true; }
+
   if (remainingSeconds > 0) {
     remainingSeconds--;
-    if (remainingSeconds === 300 && !played5min) { sound5min.play(); played5min = true; }
-    if (remainingSeconds === 60 && !played1min) { sound1min.play(); played1min = true; }
     updateDisplay();
   } else {
     soundLevelUp.play();
     currentIndex++;
-    if (currentIndex >= structure.length) { clearInterval(timerId); return; }
+    if (currentIndex >= structure.length) {
+      clearInterval(timerId);
+      return;
+    }
     remainingSeconds = structure[currentIndex].time * 60;
     played5min = false;
     played1min = false;
@@ -153,6 +207,7 @@ function tick() {
 
 function startTimer() {
   if (timerId) return;
+  unlockAudio();
   timerId = setInterval(tick, 1000);
 }
 
@@ -168,11 +223,6 @@ function toggleFullScreen() {
   } else {
     document.exitFullscreen();
   }
-}
-
-function startAndFullscreen() {
-  toggleFullScreen();
-  startTimer();
 }
 
 if ('serviceWorker' in navigator) {
