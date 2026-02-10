@@ -1,119 +1,122 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Poker Tournament Timer</title>
-  <link rel="manifest" href="manifest.json">
-  <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: #000;
-      color: #fff;
-      font-family: Arial, Helvetica, sans-serif;
-      overflow: hidden;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poker Tournament Timer</title>
 
-    .container {
-      display: grid;
-      grid-template-rows: auto auto auto 1fr;
-      height: 100vh;
-      width: 100vw;
-      padding: 20px;
-      box-sizing: border-box;
-    }
+<style>
+  body {
+    margin: 0;
+    background: #000;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    overflow: hidden;
+  }
 
-    .level {
-      font-size: 3vw;
-      border-bottom: 2px solid #444;
-    }
+  .container {
+    display: grid;
+    grid-template-rows: auto auto auto 1fr;
+    height: 100vh;
+    width: 100vw;
+    padding: 20px;
+    box-sizing: border-box;
+  }
 
-    .timer {
-      text-align: center;
-      font-size: 15vw;
-      border-bottom: 2px solid #444;
-    }
+  .level {
+    font-size: 3vw;
+    border-bottom: 2px solid #444;
+  }
 
-    .next-break {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      font-size: 3vw;
-      opacity: 0.85;
-    }
+  .timer {
+    text-align: center;
+    font-size: 15vw;
+    border-bottom: 2px solid #444;
+  }
 
-    .blinds-area {
-      display: flex;
-      justify-content: center;
-      gap: 40px;
-      font-size: 6vw;
-      border-bottom: 2px solid #444;
-    }
+  .next-break {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    font-size: 3vw;
+    opacity: 0.85;
+  }
 
-    .controls {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-    }
+  .blinds-area {
+    display: flex;
+    justify-content: center;
+    gap: 40px;
+    font-size: 6vw;
+    border-bottom: 2px solid #444;
+  }
 
-    button {
-      font-size: 2.5vw;
-      padding: 10px 20px;
-      margin-left: 10px;
-      background: #222;
-      color: #fff;
-      border: 2px solid #555;
-      border-radius: 8px;
-    }
+  .controls {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+  }
 
-    button:active {
-      transform: scale(0.92);
-      background: #666;
-    }
-  </style>
+  button {
+    font-size: 2.5vw;
+    padding: 10px 20px;
+    margin-left: 10px;
+    background: #222;
+    color: #fff;
+    border: 2px solid #555;
+    border-radius: 8px;
+  }
+
+  button:active {
+    transform: scale(0.92);
+    background: #666;
+  }
+</style>
 </head>
-<body>
-  <div class="container">
-    <div class="level"></div>
-    <div class="timer"></div>
-    <div class="next-break"></div>
-    <div class="blinds-area">
-      <div class="blinds"></div>
-      <div class="ante"></div>
-    </div>
-  </div>
 
-  <div class="controls">
-    <button onclick="toggleFullScreen()">FULL</button>
-    <button onclick="startTimer()">START</button>
-    <button onclick="pauseTimer()">STOP</button>
+<body>
+
+<div class="container">
+  <div class="level"></div>
+  <div class="timer"></div>
+  <div class="next-break"></div>
+  <div class="blinds-area">
+    <div class="blinds"></div>
+    <div class="ante"></div>
   </div>
+</div>
+
+<div class="controls">
+  <button onclick="toggleFullScreen()">FULL</button>
+  <button onclick="startTimer()">START</button>
+  <button onclick="pauseTimer()">STOP</button>
+</div>
 
 <script>
+/* ===== ストラクチャー ===== */
 const structure = [
-      { level: 1, sb: 100, bb: 200, ante: 200, time: 20 },
-      { level: 2, sb: 200, bb: 400, ante: 400, time: 20 },
-      { level: 3, sb: 300, bb: 600, ante: 600, time: 20 },
-      { level: 4, sb: 400, bb: 800, ante: 800, time: 20 },
-      { level: 5, sb: 500, bb: 1000, ante: 1000, time: 15 },
-      { level: 6, sb: 600, bb: 1200, ante: 1200, time: 15 },
-      { break: true, name: 'BREAK & CHIP UP (ADDON)', time: 12 },
-      { level: 7, sb: 1000, bb: 1500, ante: 1500, time: 15 },
-      { level: 8, sb: 1000, bb: 2000, ante: 2000, time: 15 },
-      { level: 9, sb: 1500, bb: 3000, ante: 3000, time: 15 },
-      { level: 10, sb: 2000, bb: 4000, ante: 4000, time: 12 },
-      { level: 11, sb: 2500, bb: 5000, ante: 5000, time: 12 },
-      { break: true, name: 'BREAK & CHIP UP', time: 12 },
-      { level: 12, sb: 3000, bb: 6000, ante: 6000, time: 12 },
-      { level: 13, sb: 4000, bb: 8000, ante: 8000, time: 10 },
-      { level: 14, sb: 5000, bb: 10000, ante: 10000, time: 10 },
-      { level: 15, sb: 6000, bb: 12000, ante: 12000, time: 10 },
-      { level: 16, sb: 8000, bb: 16000, ante: 16000, time: 10 },
-      { level: 17, sb: 10000, bb: 20000, ante: 20000, time: 10 },
-      { level: 18, sb: 15000, bb: 30000, ante: 30000, time: 35 }
-    ];
+  { level: 1, sb: 100, bb: 200, ante: 200, time: 20 },
+  { level: 2, sb: 200, bb: 400, ante: 400, time: 20 },
+  { level: 3, sb: 300, bb: 600, ante: 600, time: 20 },
+  { level: 4, sb: 400, bb: 800, ante: 800, time: 20 },
+  { level: 5, sb: 500, bb: 1000, ante: 1000, time: 15 },
+  { level: 6, sb: 600, bb: 1200, ante: 1200, time: 15 },
+  { break: true, name: 'BREAK & CHIP UP (ADDON)', time: 12 },
+  { level: 7, sb: 1000, bb: 1500, ante: 1500, time: 15 },
+  { level: 8, sb: 1000, bb: 2000, ante: 2000, time: 15 },
+  { level: 9, sb: 1500, bb: 3000, ante: 3000, time: 15 },
+  { level: 10, sb: 2000, bb: 4000, ante: 4000, time: 12 },
+  { level: 11, sb: 2500, bb: 5000, ante: 5000, time: 12 },
+  { break: true, name: 'BREAK & CHIP UP', time: 12 },
+  { level: 12, sb: 3000, bb: 6000, ante: 6000, time: 12 },
+  { level: 13, sb: 4000, bb: 8000, ante: 8000, time: 10 },
+  { level: 14, sb: 5000, bb: 10000, ante: 10000, time: 10 },
+  { level: 15, sb: 6000, bb: 12000, ante: 12000, time: 10 },
+  { level: 16, sb: 8000, bb: 16000, ante: 16000, time: 10 },
+  { level: 17, sb: 10000, bb: 20000, ante: 20000, time: 10 },
+  { level: 18, sb: 15000, bb: 30000, ante: 30000, time: 35 }
+];
 
+/* ===== 変数 ===== */
 let currentIndex = 0;
 let remainingSeconds = structure[0].time * 60;
 let timerId = null;
@@ -124,6 +127,7 @@ const blindsEl = document.querySelector('.blinds');
 const anteEl = document.querySelector('.ante');
 const nextBreakEl = document.querySelector('.next-break');
 
+/* ===== 効果音 ===== */
 const sound5min = new Audio('5min.mp3');
 const sound1min = new Audio('1min.mp3');
 const soundLevelUp = new Audio('levelup.mp3');
@@ -131,15 +135,7 @@ const soundLevelUp = new Audio('levelup.mp3');
 let played5min = false;
 let played1min = false;
 
-function unlockAudio() {
-  sound5min.volume = 0;
-  sound5min.play().then(() => {
-    sound5min.pause();
-    sound5min.currentTime = 0;
-    sound5min.volume = 1;
-  });
-}
-
+/* ===== フォーマット ===== */
 function formatMMSS(sec) {
   const m = Math.floor(sec / 60);
   const s = sec % 60;
@@ -153,18 +149,17 @@ function formatHMMSS(sec) {
   return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
+/* ===== NEXT BREAK 計算 ===== */
 function calcNextBreakSeconds() {
   let sec = remainingSeconds;
-
   for (let i = currentIndex + 1; i < structure.length; i++) {
     sec += structure[i].time * 60;
     if (structure[i].break) break;
   }
-
   return sec;
 }
 
-
+/* ===== 表示更新 ===== */
 function updateDisplay() {
   const current = structure[currentIndex];
 
@@ -182,13 +177,13 @@ function updateDisplay() {
   nextBreakEl.textContent = `NEXT BREAK ${formatHMMSS(calcNextBreakSeconds())}`;
 }
 
+/* ===== タイマー処理 ===== */
 function tick() {
   if (remainingSeconds === 300 && !played5min) { sound5min.play(); played5min = true; }
   if (remainingSeconds === 60 && !played1min) { sound1min.play(); played1min = true; }
 
   if (remainingSeconds > 0) {
     remainingSeconds--;
-    updateDisplay();
   } else {
     soundLevelUp.play();
     currentIndex++;
@@ -199,13 +194,13 @@ function tick() {
     remainingSeconds = structure[currentIndex].time * 60;
     played5min = false;
     played1min = false;
-    updateDisplay();
   }
+  updateDisplay();
 }
 
+/* ===== 操作 ===== */
 function startTimer() {
   if (timerId) return;
-  unlockAudio();
   timerId = setInterval(tick, 1000);
 }
 
@@ -215,19 +210,16 @@ function pauseTimer() {
 }
 
 function toggleFullScreen() {
-  const elem = document.documentElement;
   if (!document.fullscreenElement) {
-    elem.requestFullscreen();
+    document.documentElement.requestFullscreen();
   } else {
     document.exitFullscreen();
   }
 }
 
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('./sw.js');
-}
-
+/* 初期表示 */
 updateDisplay();
 </script>
+
 </body>
 </html>
