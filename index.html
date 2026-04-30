@@ -181,10 +181,12 @@ function blinkEffect() {
 /* ===== NEXT BREAK ===== */
 function calcNextBreakSeconds() {
   let sec = remainingSeconds;
+
   for (let i = currentIndex + 1; i < structure.length; i++) {
+    if (structure[i].break) break; // ← 先に判定
     sec += structure[i].time * 60;
-    if (structure[i].break) break;
   }
+
   return sec;
 }
 
