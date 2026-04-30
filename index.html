@@ -4,81 +4,98 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Poker Tournament Timer</title>
+
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&display=swap" rel="stylesheet">
+
 <style>
 body {
   margin: 0;
   color: #fff;
   font-family: 'Cinzel', serif;
   overflow: hidden;
-
   background: radial-gradient(circle at center, #0b1f1a, #020504);
 }
 
-  .container {
-    display: grid;
-    grid-template-rows: auto auto auto 1fr;
-    height: 100vh;
-    width: 100vw;
-    padding: 20px;
-    box-sizing: border-box;
-  }
-
-  .level {
-  font-weight: 400;
-  letter-spacing: 0.15em;
-  color: rgba(255,255,255,0.6);
-  padding-bottom: 5px;
+/* 全体 */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
 }
-  .timer {
-  text-align: center;
-  font-size: 15vw;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
 
+/* 上段 */
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.title {
+  font-size: 3vw;
+  color: rgba(255,255,255,0.6);
+}
+
+.next-break {
+  font-size: 3vw;
+  color: rgba(255,255,255,0.5);
+}
+
+/* 中央 */
+.main-area {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  flex: 1;
+}
+
+.level {
+  font-size: 3vw;
+  color: rgba(255,255,255,0.7);
+  letter-spacing: 0.15em;
+}
+
+.timer {
+  font-size: 15vw;
   font-weight: 700;
   letter-spacing: 0.08em;
-
   color: #f5e6c8;
 
   text-shadow:
     0 0 4px rgba(245,230,200,0.4),
     0 0 10px rgba(245,230,200,0.25);
 
-    font-variant-numeric: lining-nums;
+  font-variant-numeric: lining-nums;
 }
 
-  .next-break {
-  position: absolute;
-  top: 20px;
-  right: 20px;
-  font-size: 3vw;
-
-  color: rgba(255,255,255,0.5);
-  text-shadow: none;
-}
-  .blinds-area {
-  display: flex;
-  justify-content: center;
-  gap: 40px;
+/* 下段 */
+.blinds-area {
+  text-align: center;
   font-size: 6vw;
-  border-bottom: 1px solid rgba(255,255,255,0.1);
-
-  font-weight: 600;
-  letter-spacing: 0.05em;
+  margin-top: 20px;
 
   color: #f5e6c8;
+  font-weight: 600;
 
   text-shadow:
     0 0 3px rgba(245,230,200,0.25);
 }
-  
-  .controls {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-  }
 
-  button {
+.ante {
+  margin-left: 20px;
+  opacity: 0.85;
+}
+
+/* ボタン */
+.controls {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
+button {
   font-size: 2.5vw;
   padding: 10px 20px;
   margin-left: 10px;
@@ -87,8 +104,6 @@ body {
   color: #f5e6c8;
   border: 1px solid rgba(212,175,55,0.4);
   border-radius: 6px;
-
-  backdrop-filter: blur(4px);
 }
 
 button:active {
@@ -96,7 +111,7 @@ button:active {
   background: rgba(212,175,55,0.2);
 }
 
-  /* フラッシュ演出 */
+/* 点滅 */
 .blink {
   animation: blinkAnim 0.8s ease-in-out 3;
 }
@@ -106,26 +121,28 @@ button:active {
   50% { opacity: 0.2; }
   100% { opacity: 1; }
 }
-
-@keyframes bgMove {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-  
 </style>
 </head>
 
 <body>
 
 <div class="container">
-  <div class="level"></div>
-  <div class="timer"></div>
-  <div class="next-break"></div>
-  <div class="blinds-area">
-    <div class="blinds"></div>
-    <div class="ante"></div>
+
+  <div class="top-bar">
+    <div class="title">TOURNAMENT</div>
+    <div class="next-break"></div>
   </div>
+
+  <div class="main-area">
+    <div class="level"></div>
+    <div class="timer"></div>
+  </div>
+
+  <div class="blinds-area">
+    <span class="blinds"></span>
+    <span class="ante"></span>
+  </div>
+
 </div>
 
 <div class="controls">
@@ -137,38 +154,29 @@ button:active {
 </div>
 
 <script>
-/* ===== ストラクチャー ===== */
 const structure = [
   { level: 1, sb: 100, bb: 200, ante: 200, time: 30 },
   { level: 2, sb: 200, bb: 400, ante: 400, time: 30 },
   { level: 3, sb: 300, bb: 600, ante: 600, time: 30 },
   { level: 4, sb: 400, bb: 800, ante: 800, time: 30 },
-
   { break: true, name: 'BREAK', time: 10 },
-
   { level: 5, sb: 500, bb: 1000, ante: 1000, time: 30 },
   { level: 6, sb: 600, bb: 1200, ante: 1200, time: 30 },
   { level: 7, sb: 800, bb: 1600, ante: 1600, time: 30 },
-
   { break: true, name: 'BREAK & CHIP UP', time: 10 },
-
   { level: 8, sb: 1000, bb: 1500, ante: 1500, time: 25 },
   { level: 9, sb: 1000, bb: 2000, ante: 2000, time: 25 },
-
   { level: 10, sb: 1500, bb: 3000, ante: 3000, time: 20 },
   { level: 11, sb: 2000, bb: 4000, ante: 4000, time: 20 },
   { level: 12, sb: 2500, bb: 5000, ante: 5000, time: 20 },
   { level: 13, sb: 3000, bb: 6000, ante: 6000, time: 20 },
-
   { level: 14, sb: 5000, bb: 10000, ante: 10000, time: 15 },
   { level: 15, sb: 7000, bb: 15000, ante: 15000, time: 15 },
   { level: 16, sb: 10000, bb: 20000, ante: 20000, time: 15 },
-
   { level: 17, sb: 15000, bb: 30000, ante: 30000, time: 30 },
   { level: 18, sb: 30000, bb: 60000, ante: 60000, time: 30 }
 ];
 
-/* ===== 変数 ===== */
 let currentIndex = 0;
 let remainingSeconds = structure[0].time * 60;
 let timerId = null;
@@ -179,7 +187,6 @@ const blindsEl = document.querySelector('.blinds');
 const anteEl = document.querySelector('.ante');
 const nextBreakEl = document.querySelector('.next-break');
 
-/* ===== 効果音 ===== */
 const sound5min = new Audio('5min.mp3');
 const sound1min = new Audio('1min.mp3');
 const soundLevelUp = new Audio('levelup.mp3');
@@ -187,11 +194,8 @@ const soundLevelUp = new Audio('levelup.mp3');
 let played5min = false;
 let played1min = false;
 
-/* ===== フォーマット ===== */
 function formatMMSS(sec) {
-  const m = Math.floor(sec / 60);
-  const s = sec % 60;
-  return `${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
+  return `${String(Math.floor(sec/60)).padStart(2,'0')}:${String(sec%60).padStart(2,'0')}`;
 }
 
 function formatHMMSS(sec) {
@@ -201,28 +205,15 @@ function formatHMMSS(sec) {
   return `${h}:${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;
 }
 
-/* ===== フラッシュ ===== */
-function blinkEffect() {
-  timerEl.classList.add('blink');
-
-  setTimeout(() => {
-    timerEl.classList.remove('blink');
-  }, 2400); // 0.8秒 × 3回
-}
-
-/* ===== NEXT BREAK ===== */
 function calcNextBreakSeconds() {
   let sec = remainingSeconds;
-
   for (let i = currentIndex + 1; i < structure.length; i++) {
-    if (structure[i].break) break; // ← 先に判定
+    if (structure[i].break) break;
     sec += structure[i].time * 60;
   }
-
   return sec;
 }
 
-/* ===== 表示更新 ===== */
 function updateDisplay() {
   const current = structure[currentIndex];
 
@@ -240,7 +231,11 @@ function updateDisplay() {
   nextBreakEl.textContent = `NEXT BREAK ${formatHMMSS(calcNextBreakSeconds())}`;
 }
 
-/* ===== タイマー ===== */
+function blinkEffect() {
+  timerEl.classList.add('blink');
+  setTimeout(() => timerEl.classList.remove('blink'), 2400);
+}
+
 function tick() {
   if (remainingSeconds === 300 && !played5min) { sound5min.play(); played5min = true; }
   if (remainingSeconds === 60 && !played1min) { sound1min.play(); played1min = true; }
@@ -251,10 +246,7 @@ function tick() {
     soundLevelUp.play();
     blinkEffect();
     currentIndex++;
-    if (currentIndex >= structure.length) {
-      clearInterval(timerId);
-      return;
-    }
+    if (currentIndex >= structure.length) return;
     remainingSeconds = structure[currentIndex].time * 60;
     played5min = false;
     played1min = false;
@@ -262,10 +254,8 @@ function tick() {
   updateDisplay();
 }
 
-/* ===== 操作 ===== */
 function startTimer() {
-  if (timerId) return;
-  timerId = setInterval(tick, 1000);
+  if (!timerId) timerId = setInterval(tick, 1000);
 }
 
 function pauseTimer() {
@@ -274,24 +264,21 @@ function pauseTimer() {
 }
 
 function nextLevel() {
-  if (currentIndex >= structure.length - 1) return;
-  currentIndex++;
-  remainingSeconds = structure[currentIndex].time * 60;
-  played5min = false;
-  played1min = false;
-  soundLevelUp.play();
-  blinkEffect();
-  updateDisplay();
+  if (currentIndex < structure.length - 1) {
+    currentIndex++;
+    remainingSeconds = structure[currentIndex].time * 60;
+    blinkEffect();
+    updateDisplay();
+  }
 }
 
 function prevLevel() {
-  if (currentIndex <= 0) return;
-  currentIndex--;
-  remainingSeconds = structure[currentIndex].time * 60;
-  played5min = false;
-  played1min = false;
-  blinkEffect();
-  updateDisplay();
+  if (currentIndex > 0) {
+    currentIndex--;
+    remainingSeconds = structure[currentIndex].time * 60;
+    blinkEffect();
+    updateDisplay();
+  }
 }
 
 function toggleFullScreen() {
@@ -302,7 +289,6 @@ function toggleFullScreen() {
   }
 }
 
-/* 初期表示 */
 updateDisplay();
 </script>
 
