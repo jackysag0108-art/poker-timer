@@ -55,6 +55,7 @@ body {
   font-size: 3vw;
   color: rgba(255,255,255,0.7);
   letter-spacing: 0.15em;
+  margin-bottom: 2vh;
 }
 
 .timer {
@@ -81,6 +82,8 @@ body {
 
   text-shadow:
     0 0 3px rgba(245,230,200,0.25);
+
+  margin-bottom: 80px;
 }
 
 .ante {
@@ -222,7 +225,7 @@ function updateDisplay() {
     blindsEl.textContent = '';
     anteEl.textContent = '';
   } else {
-    levelEl.textContent = `LEVEL ${current.level}`;
+    levelEl.innerHTML = `LEVEL<br>${current.level}`;
     blindsEl.textContent = `${current.sb} / ${current.bb}`;
     anteEl.textContent = `ANTE ${current.ante}`;
   }
