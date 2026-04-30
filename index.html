@@ -72,14 +72,15 @@
   }
 
   /* フラッシュ演出 */
-  .flash {
-    animation: flashAnim 0.2s;
-  }
+.blink {
+  animation: blinkAnim 0.8s ease-in-out 3;
+}
 
-  @keyframes flashAnim {
-    0% { background-color: #fff; }
-    100% { background-color: #000; }
-  }
+@keyframes blinkAnim {
+  0% { opacity: 1; }
+  50% { opacity: 0.2; }
+  100% { opacity: 1; }
+}
 </style>
 </head>
 
@@ -169,11 +170,12 @@ function formatHMMSS(sec) {
 }
 
 /* ===== フラッシュ ===== */
-function flashScreen() {
-  document.body.classList.add('flash');
+function blinkEffect() {
+  timerEl.classList.add('blink');
+
   setTimeout(() => {
-    document.body.classList.remove('flash');
-  }, 200);
+    timerEl.classList.remove('blink');
+  }, 2400); // 0.8秒 × 3回
 }
 
 /* ===== NEXT BREAK ===== */
@@ -213,7 +215,7 @@ function tick() {
     remainingSeconds--;
   } else {
     soundLevelUp.play();
-    flashScreen();
+    blinkEffect();
     currentIndex++;
     if (currentIndex >= structure.length) {
       clearInterval(timerId);
@@ -244,7 +246,7 @@ function nextLevel() {
   played5min = false;
   played1min = false;
   soundLevelUp.play();
-  flashScreen();
+  blinkEffect();
   updateDisplay();
 }
 
@@ -254,7 +256,7 @@ function prevLevel() {
   remainingSeconds = structure[currentIndex].time * 60;
   played5min = false;
   played1min = false;
-  flashScreen();
+  blinkEffect();
   updateDisplay();
 }
 
