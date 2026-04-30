@@ -41,6 +41,10 @@ body {
   font-size: 3vw;
   color: rgba(255,255,255,0.5);
 
+  display: inline-block;
+  width: 16ch;
+  text-align: right;
+
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
 }
@@ -85,6 +89,12 @@ body {
 
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum";
+
+  display: inline-block;
+  width: 7ch;        /* ← これが超重要 */
+  text-align: center;
+
+  letter-spacing: 0.05em;
 }
 
 /* 下段 */
