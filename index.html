@@ -252,9 +252,14 @@ function blinkEffect() {
 }
 
 function tick() {
-  if (remainingSeconds === 300 && !played5min) { 5min.play(); played5min = true; }
-  if (remainingSeconds === 60 && !played1min) { 1min.play(); played1min = true; }
-
+  if (remainingSeconds === 300 && !played5min) {
+  sound5min.play();
+  played5min = true;
+}
+if (remainingSeconds === 60 && !played1min) {
+  sound1min.play();
+  played1min = true;
+}
   if (remainingSeconds > 0) {
     remainingSeconds--;
   } else {
