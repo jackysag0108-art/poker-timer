@@ -61,6 +61,15 @@ body {
   line-height: 1.2; 
 }
 
+.level-num {
+  font-size: 5vw;   /* ← タイマーの約1/3 */
+  font-weight: 700;
+  color: #f5e6c8;
+
+  text-shadow:
+    0 0 4px rgba(245,230,200,0.3);
+}
+
 .timer {
   font-size: 15vw;
   font-weight: 700;
@@ -86,7 +95,7 @@ body {
   text-shadow:
     0 0 3px rgba(245,230,200,0.25);
 
-  margin-bottom: 80px;
+  margin-bottom: 12vh;
 }
 
 .ante {
@@ -97,8 +106,8 @@ body {
 /* ボタン */
 .controls {
   position: fixed;
-  bottom: 20px;
-  right: 20px;
+  bottom: 3vh;   /* ← pxではなくvhに */
+  right: 3vw;
 }
 
 button {
@@ -228,7 +237,7 @@ function updateDisplay() {
     blindsEl.textContent = '';
     anteEl.textContent = '';
   } else {
-    levelEl.innerHTML = `LEVEL<br>${current.level}`;
+    levelEl.innerHTML = `LEVEL<br><span class="level-num">${current.level}</span>`;
     blindsEl.textContent = `${current.sb} / ${current.bb}`;
     anteEl.textContent = `ANTE ${current.ante}`;
   }
