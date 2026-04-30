@@ -252,8 +252,8 @@ function blinkEffect() {
 }
 
 function tick() {
-  if (remainingSeconds === 300 && !played5min) { sound5min.play(); played5min = true; }
-  if (remainingSeconds === 60 && !played1min) { sound1min.play(); played1min = true; }
+  if (remainingSeconds === 300 && !played5min) { 5min.play(); played5min = true; }
+  if (remainingSeconds === 60 && !played1min) { 1min.play(); played1min = true; }
 
   if (remainingSeconds > 0) {
     remainingSeconds--;
@@ -282,6 +282,12 @@ function nextLevel() {
   if (currentIndex < structure.length - 1) {
     currentIndex++;
     remainingSeconds = structure[currentIndex].time * 60;
+
+    // ★これを追加
+    played5min = false;
+    played1min = false;
+
+    soundLevelUp.play();   // ← 念のためここも明示
     blinkEffect();
     updateDisplay();
   }
@@ -291,11 +297,16 @@ function prevLevel() {
   if (currentIndex > 0) {
     currentIndex--;
     remainingSeconds = structure[currentIndex].time * 60;
+
+    // ★これを追加
+    played5min = false;
+    played1min = false;
+
+    soundLevelUp.play();
     blinkEffect();
     updateDisplay();
   }
 }
-
 function toggleFullScreen() {
   if (!document.fullscreenElement) {
     document.documentElement.requestFullscreen();
