@@ -12,9 +12,7 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   overflow: hidden;
 
-  background: linear-gradient(-45deg, #000, #001a1a, #000, #1a001a);
-  background-size: 400% 400%;
-  animation: bgMove 12s ease infinite;
+  background: radial-gradient(circle at center, #0b1f1a, #020504);
 }
 
   .container {
@@ -28,40 +26,42 @@ body {
 
   .level {
   font-size: 3vw;
-  border-bottom: 2px solid #444;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 
-  color: #ff00ff;
-  text-shadow: 0 0 8px #ff00ff;
+  color: rgba(255,255,255,0.6);
+  letter-spacing: 0.15em;
 }
-
   .timer {
   text-align: center;
   font-size: 15vw;
-  border-bottom: 2px solid #444;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 
-  color: #00ffff;
+  color: #f5e6c8;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+
   text-shadow:
-    0 0 8px #00ffff,
-    0 0 16px #00ffff,
-    0 0 32px #00ffff;
+    0 0 6px rgba(245,230,200,0.4),
+    0 0 12px rgba(245,230,200,0.2);
 }
 
   .next-break {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    font-size: 3vw;
-    opacity: 0.85;
-  }
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  font-size: 3vw;
 
+  color: #d4af37;
+  text-shadow: 0 0 6px rgba(212,175,55,0.5);
+}
   .blinds-area {
   display: flex;
   justify-content: center;
   gap: 40px;
   font-size: 6vw;
-  border-bottom: 2px solid #444;
+  border-bottom: 1px solid rgba(255,255,255,0.1);
 
-  text-shadow: 0 0 6px rgba(255,255,255,0.3);
+  color: #ffffff;
 }
 
   .controls {
@@ -71,15 +71,21 @@ body {
   }
 
   button {
-    font-size: 2.5vw;
-    padding: 10px 20px;
-    margin-left: 10px;
-    background: #222;
-    color: #fff;
-    border: 2px solid #555;
-    border-radius: 8px;
-  }
+  font-size: 2.5vw;
+  padding: 10px 20px;
+  margin-left: 10px;
 
+  background: rgba(255,255,255,0.05);
+  color: #f5e6c8;
+  border: 1px solid rgba(212,175,55,0.4);
+  border-radius: 6px;
+
+  backdrop-filter: blur(4px);
+}
+
+button:active {
+  background: rgba(212,175,55,0.2);
+}
   button:active {
     transform: scale(0.92);
     background: #666;
